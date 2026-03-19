@@ -28,6 +28,11 @@ export const addressFields = [
 type AddressField = keyof typeof addressFields;
 
 export const configSchema = {
+  admissionLocationTagName: {
+    _type: Type.String,
+    _default: 'Admission Location',
+    _description: 'Tag name used to identify admission locations displayed as ward tabs',
+  },
   patientCardElements: {
     _description:
       'Configuration of various patient card elements. Each configured element must have a unique id, defined in the ward React component being used.',
@@ -266,6 +271,7 @@ export const configSchema = {
 };
 
 export interface WardConfigObject {
+  admissionLocationTagName: string;
   patientCardElements: {
     obs: Array<ObsElementConfig>;
     pendingItems: Array<PendingItemsElementConfig>;

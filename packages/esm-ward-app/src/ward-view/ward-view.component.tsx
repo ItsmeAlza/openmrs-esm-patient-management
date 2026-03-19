@@ -1,25 +1,35 @@
 import { InlineNotification } from '@carbon/react';
-import { ExtensionSlot } from '@openmrs/esm-framework';
+import { ExtensionSlot, useDefineAppContext, useSession, type Location } from '@openmrs/esm-framework';
 import classNames from 'classnames';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import useWardLocation from '../hooks/useWardLocation';
 import { useWardConfig } from './ward-view.resource';
+import WardTabs from './ward-tabs.component';
 import styles from './ward-view.scss';
 
-const WardView: React.FC<{}> = () => {
-  const response = useWardLocation();
-  const { isLoadingLocation, invalidLocation, location } = response;
-  const { t } = useTranslation();
+export interface WardLocationContext {
+  location: Location;
+}
 
-  const locationUuid = location?.uuid;
+const WardView: React.FC<{}> = () => {
+  const { t } = useTranslation();
+  const { sessionLocation } = useSession();
+  const [selectedLocation, setSelectedLocation] = useState<Location>(sessionLocation);
+
+  // Broadcast the selected location via app context so hooks inside
+  // extensions (which don't share BrowserRouter) can read it
+  useDefineAppContext<WardLocationContext>('ward-location-context', {
+    location: selectedLocation,
+  });
+
+  const locationUuid = selectedLocation?.uuid;
   const wardConfig = useWardConfig(locationUuid);
 
-  if (isLoadingLocation) {
-    return <></>;
-  }
+  const handleLocationChange = useCallback((location: Location) => {
+    setSelectedLocation(location);
+  }, []);
 
-  if (invalidLocation) {
+  if (!selectedLocation) {
     return <InlineNotification kind="error" title={t('invalidLocationSpecified', 'Invalid location specified')} />;
   }
 
@@ -27,9 +37,11 @@ const WardView: React.FC<{}> = () => {
 
   return (
     <div className={classNames(styles.wardView, styles.verticalTiling)}>
+      <WardTabs selectedLocation={selectedLocation} onLocationChange={handleLocationChange} />
       <ExtensionSlot name={wardId} />
     </div>
   );
 };
 
 export default WardView;
+

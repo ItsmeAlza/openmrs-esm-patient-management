@@ -134,6 +134,11 @@ export const deleteNoteModal = getAsyncLifecycle(
   options,
 );
 
+export const visitTypeConfirmationModal = getAsyncLifecycle(
+  () => import('./ward-workspace/visit-type-confirmation.modal'),
+  options,
+);
+
 export function startupApp() {
   registerBreadcrumbs([]);
   defineConfigSchema(moduleName, configSchema);

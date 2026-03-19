@@ -1,0 +1,14 @@
+@use '@carbon/layout';
+
+.wardTabsContainer {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #fff;
+  padding: 0;
+  margin-bottom: layout.$spacing-03;
+
+  :global(.cds--tabs--contained .cds--tab--list) {
+    overflow-x: auto;
+  }
+}

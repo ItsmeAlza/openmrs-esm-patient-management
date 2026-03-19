@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import {
   closeWorkspaceGroup2,
+  showModal,
   showSnackbar,
   useAppContext,
   Workspace2,
@@ -63,7 +64,7 @@ const AdmitPatientFormWorkspace: React.FC<Workspace2DefinitionProps<WardPatientW
     resolver: zodResolver(zodSchema),
   });
 
-  const onSubmit = (values: FormValues) => {
+  const proceedWithAdmission = (values: FormValues) => {
     setShowErrorNotifications(false);
     setIsSubmitting(true);
     const bedSelected = beds.find((bed) => bed.bedId === values.bedId);
@@ -134,6 +135,26 @@ const AdmitPatientFormWorkspace: React.FC<Workspace2DefinitionProps<WardPatientW
         await wardPatientGroupDetails?.mutate?.();
         setIsSubmitting(false);
       });
+  };
+
+  const onSubmit = (values: FormValues) => {
+    const visitTypeName = visit?.visitType?.display;
+    if (visitTypeName) {
+      const dispose = showModal('visit-type-confirmation-modal', {
+        close: () => dispose(),
+        visitTypeName,
+        onContinueWithCurrentVisit: () => {
+          dispose();
+          proceedWithAdmission(values);
+        },
+        onConfirmNewVisit: () => {
+          dispose();
+          // TODO: implement close-visit-and-start-IPD logic
+        },
+      });
+    } else {
+      proceedWithAdmission(values);
+    }
   };
 
   const onError = useCallback(() => {

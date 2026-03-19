@@ -64,11 +64,11 @@ const AdmitPatientButton: React.FC<AdmitPatientButtonProps> = ({
             subtitle:
               dispositionType === 'ADMIT'
                 ? t('patientAdmittedToLocation', 'Patient admitted successfully to {{location}}', {
-                    location: location?.display,
-                  })
+                  location: location?.display,
+                })
                 : t('patientTransferredToLocation', 'Patient transferred successfully to {{location}}', {
-                    location: location?.display,
-                  }),
+                  location: location?.display,
+                }),
           });
         }
         onAdmitPatientSuccess();
