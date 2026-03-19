@@ -268,6 +268,11 @@ export const configSchema = {
     _description:
       'List of uuids of concepts that represent notes to display in the notes view in addition to the consultFreeTextCommentsConcept defined by EMR-API',
   },
+  ipdVisitTypeUuid: {
+    _type: Type.UUID,
+    _default: 'a863d89a-44cf-4b29-a6b5-e25a8fd54d97',
+    _description: 'The UUID of the IPD visit type to use when creating a new inpatient visit',
+  },
 };
 
 export interface WardConfigObject {
@@ -283,6 +288,7 @@ export interface WardConfigObject {
   wards: Array<WardDefinition>;
   hideWorkspaceVitalsLinks: boolean;
   additionalInpatientNotesConceptUuids: Array<string>;
+  ipdVisitTypeUuid: string;
 }
 
 export interface PendingItemsElementConfig {

@@ -20,9 +20,8 @@ export default function useWardLocation(): {
   const invalidLocation = locationUuidFromUrl && errorFetchingLocation;
 
   // Priority: app context (set by WardView, works across extensions) > URL param > session location
-  const location = wardLocationContext?.location
-    ?? (locationUuidFromUrl ? locationResponse?.data : null)
-    ?? sessionLocation;
+  const location =
+    wardLocationContext?.location ?? (locationUuidFromUrl ? locationResponse?.data : null) ?? sessionLocation;
 
   return {
     location,
@@ -31,4 +30,3 @@ export default function useWardLocation(): {
     invalidLocation,
   };
 }
-

@@ -81,3 +81,19 @@ export function removePatientFromBed(bedId: number, patientUuid: string) {
     method: 'DELETE',
   });
 }
+
+export function createVisit(patientUuid: string, locationUuid: string, visitTypeUuid: string) {
+  return openmrsFetch(`${restBaseUrl}/visit`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: {
+      patient: patientUuid,
+      location: locationUuid,
+      visitType: visitTypeUuid,
+      startDatetime: new Date().toISOString(),
+    },
+  });
+}
+

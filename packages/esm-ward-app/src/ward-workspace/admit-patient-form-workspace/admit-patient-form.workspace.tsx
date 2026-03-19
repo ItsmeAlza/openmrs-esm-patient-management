@@ -8,13 +8,16 @@ import {
   closeWorkspaceGroup2,
   showModal,
   showSnackbar,
+  updateVisit,
   useAppContext,
+  useConfig,
   Workspace2,
   type Workspace2DefinitionProps,
 } from '@openmrs/esm-framework';
+import type { WardConfigObject } from '../../config-schema';
 import type { WardPatientWorkspaceProps, WardViewContext } from '../../types';
 import { useAssignedBedByPatient } from '../../hooks/useAssignedBedByPatient';
-import { assignPatientToBed, removePatientFromBed, useAdmitPatient } from '../../ward.resource';
+import { assignPatientToBed, removePatientFromBed, useAdmitPatient, createVisit } from '../../ward.resource';
 import useWardLocation from '../../hooks/useWardLocation';
 import BedSelector from '../bed-selector.component';
 import WardPatientWorkspaceBanner from '../patient-banner/patient-banner.component';
@@ -40,6 +43,7 @@ const AdmitPatientFormWorkspace: React.FC<Workspace2DefinitionProps<WardPatientW
   const [showErrorNotifications, setShowErrorNotifications] = useState(false);
   const { wardPatientGroupDetails } = useAppContext<WardViewContext>('ward-view-context') ?? {};
   const { isLoading } = wardPatientGroupDetails?.admissionLocationResponse ?? {};
+  const config = useConfig<WardConfigObject>();
 
   const { data: bedsAssignedToPatient, isLoading: isLoadingBedsAssignedToPatient } = useAssignedBedByPatient(
     patient.uuid,
@@ -64,11 +68,11 @@ const AdmitPatientFormWorkspace: React.FC<Workspace2DefinitionProps<WardPatientW
     resolver: zodResolver(zodSchema),
   });
 
-  const proceedWithAdmission = (values: FormValues) => {
+  const proceedWithAdmission = (values: FormValues, visitUuidToUse: string) => {
     setShowErrorNotifications(false);
     setIsSubmitting(true);
     const bedSelected = beds.find((bed) => bed.bedId === values.bedId);
-    admitPatient(patient, dispositionType, visit.uuid)
+    admitPatient(patient, dispositionType, visitUuidToUse)
       .then(
         async (response) => {
           if (response.ok) {
@@ -145,15 +149,35 @@ const AdmitPatientFormWorkspace: React.FC<Workspace2DefinitionProps<WardPatientW
         visitTypeName,
         onContinueWithCurrentVisit: () => {
           dispose();
-          proceedWithAdmission(values);
+          proceedWithAdmission(values, visit.uuid);
         },
-        onConfirmNewVisit: () => {
+        onConfirmNewVisit: async () => {
           dispose();
-          // TODO: implement close-visit-and-start-IPD logic
+          try {
+            setIsSubmitting(true);
+            const abortController = new AbortController();
+            await updateVisit(visit.uuid, { stopDatetime: new Date() }, abortController);
+            // After closing current visit, start new IPD visit
+            const newVisitResponse = await createVisit(patient.uuid, location.uuid, config.ipdVisitTypeUuid);
+
+            if (newVisitResponse && newVisitResponse.ok) {
+              const newVisitUuid = newVisitResponse.data.uuid;
+              proceedWithAdmission(values, newVisitUuid);
+            } else {
+              throw new Error('Failed to create new IPD visit');
+            }
+          } catch (error) {
+            setIsSubmitting(false);
+            showSnackbar({
+              kind: 'error',
+              title: t('errorCreatingVisit', 'Failed to start new IPD visit'),
+              subtitle: error?.message,
+            });
+          }
         },
       });
     } else {
-      proceedWithAdmission(values);
+      proceedWithAdmission(values, visit?.uuid);
     }
   };
 

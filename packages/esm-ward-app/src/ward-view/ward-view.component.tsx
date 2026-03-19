@@ -44,4 +44,3 @@ const WardView: React.FC<{}> = () => {
 };
 
 export default WardView;
-
