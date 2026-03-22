@@ -1,0 +1,52 @@
+@use '@carbon/layout';
+@use '@carbon/type';
+@use '@carbon/colors';
+
+.summaryContainer {
+  padding: layout.$spacing-05;
+  display: flex;
+  flex-direction: column;
+  gap: layout.$spacing-05;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: layout.$spacing-03;
+  padding-bottom: layout.$spacing-05;
+  border-bottom: 1px solid #e0e0e0
+}
+
+.sectionLabel {
+  @include type.type-style('heading-compact-01');
+  margin-bottom: layout.$spacing-02;
+}
+
+.diagnosesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: layout.$spacing-02;
+}
+
+.medicationsList .list {
+  padding-left: layout.$spacing-05;
+}
+
+.list {
+  list-style-type: disc;
+}
+
+.listItem {
+  @include type.type-style('body-compact-01');
+  margin-bottom: layout.$spacing-02;
+}
+
+.emptyText {
+  @include type.type-style('body-compact-01');
+  color: #525252;
+}
+
+.errorText {
+  @include type.type-style('body-compact-01');
+  color: #da1e28;
+}

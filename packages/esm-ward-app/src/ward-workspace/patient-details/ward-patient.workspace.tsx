@@ -6,6 +6,7 @@ import styles from './ward-patient.style.scss';
 import { type WardConfigObject } from '../../config-schema';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
+import DiagnosesAndTreatmentsSummary from './diagnoses-treatments-summary.component';
 
 attach('ward-patient-workspace-header-slot', 'patient-vitals-info');
 
@@ -38,12 +39,17 @@ export default function WardPatientWorkspace({
       {wardPatient && (
         <div className={classNames(styles.workspaceContainer, styles.patientWorkspace)}>
           <WardPatientWorkspaceBanner {...{ wardPatient }} />
+          
           <ExtensionSlot name="ward-patient-workspace-header-slot" state={extensionSlotState} />
+          {patient?.uuid && (
+            <DiagnosesAndTreatmentsSummary patientUuid={patient.uuid} visitUuid={visit?.uuid} />
+          )}
           <ExtensionSlot
             name="ward-patient-workspace-content-slot"
             state={extensionSlotState}
             className={styles.patientWorkspaceContentSlot}
           />
+          
         </div>
       )}
     </Workspace2>
